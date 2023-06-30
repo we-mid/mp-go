@@ -54,7 +54,7 @@ func init() {
 
 	viper.UnmarshalKey("debug", &Debug)
 	viper.UnmarshalKey("http", &Http)
-	viper.UnmarshalKey("openai", &OpenAI)
+	// viper.UnmarshalKey("openai", &OpenAI)
 	viper.UnmarshalKey("wechat", &Wechat)
 	// viper.UnmarshalKey("user", &User)
 
@@ -62,10 +62,10 @@ func init() {
 		Http.Prefix = "/"
 	}
 
-	if OpenAI.Key == "" {
-		fmt.Println("OpenAI的Key不能为空")
-		os.Exit(0)
-	}
+	// if OpenAI.Key == "" {
+	// 	fmt.Println("OpenAI的Key不能为空")
+	// 	os.Exit(0)
+	// }
 
 	if Wechat.Token == "" {
 		fmt.Println("未设置公众号token，公众号功能不可用")

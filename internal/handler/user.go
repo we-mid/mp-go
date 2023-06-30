@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"openai/internal/config"
 	"openai/internal/service/fiter"
-	"openai/internal/service/openai"
+
+	// "openai/internal/service/openai"
 	"openai/internal/service/wechat"
 	"sync"
 	"time"
@@ -86,7 +87,8 @@ func ReceiveMsg(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		ch = make(chan string)
 		requests.Store(msg.MsgId, ch)
-		ch <- openai.Query(msg.FromUserName, msg.Content, time.Second*time.Duration(config.Wechat.Timeout))
+		// ch <- openai.Query(msg.FromUserName, msg.Content, time.Second*time.Duration(config.Wechat.Timeout))
+		ch <- "收到：" + msg.FromUserName + "：" + msg.Content
 	} else {
 		ch = v.(chan string)
 	}
@@ -110,7 +112,8 @@ func Test(w http.ResponseWriter, r *http.Request) {
 		echoJson(w, "", warn)
 		return
 	}
-	s := openai.Query("0", msg, time.Second*5)
+	// s := openai.Query("0", msg, time.Second*5)
+	s := "[Test] 收到：" + msg
 	echoJson(w, s, "")
 }
 
