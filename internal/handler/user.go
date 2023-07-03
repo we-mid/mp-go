@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"openai/internal/config"
+	"openai/internal/service/bot"
 	"openai/internal/service/fiter"
 
 	// "openai/internal/service/openai"
@@ -88,7 +89,8 @@ func ReceiveMsg(w http.ResponseWriter, r *http.Request) {
 		ch = make(chan string)
 		requests.Store(msg.MsgId, ch)
 		// ch <- openai.Query(msg.FromUserName, msg.Content, time.Second*time.Duration(config.Wechat.Timeout))
-		ch <- "收到：" + msg.FromUserName + "：" + msg.Content
+		// ch <- "收到：" + msg.FromUserName + "：" + msg.Content
+		ch <- bot.Query(msg.FromUserName, msg.Content)
 	} else {
 		ch = v.(chan string)
 	}
@@ -113,7 +115,9 @@ func Test(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// s := openai.Query("0", msg, time.Second*5)
-	s := "[Test] 收到：" + msg
+	// s := "[Test] 收到：" + msg
+	// todo: 注意 这里test账号 需要做限制逻辑 避免被恶意滥用
+	s := bot.Query("test", msg)
 	echoJson(w, s, "")
 }
 

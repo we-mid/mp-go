@@ -25,6 +25,10 @@ http:
 #     temperature: 0.8
 #   # 限制用户问题最大长度。这个以字计算，非token.
 #   maxQuestionLength: 200
+bot:
+  api: https://xxx.xxx.xxx/api/chat_ai
+  user: xxxxx
+  pass: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 wechat:
   # 必填(公众号服务). 与公众号设置保持一致

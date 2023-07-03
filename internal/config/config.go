@@ -29,6 +29,11 @@ var (
 
 		MaxQuestionLength int
 	}
+	Bot struct {
+		Api  string
+		User string
+		Pass string
+	}
 
 	Wechat struct {
 		Token        string
@@ -55,6 +60,7 @@ func init() {
 	viper.UnmarshalKey("debug", &Debug)
 	viper.UnmarshalKey("http", &Http)
 	// viper.UnmarshalKey("openai", &OpenAI)
+	viper.UnmarshalKey("bot", &Bot)
 	viper.UnmarshalKey("wechat", &Wechat)
 	// viper.UnmarshalKey("user", &User)
 
