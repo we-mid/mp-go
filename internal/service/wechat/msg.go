@@ -2,12 +2,7 @@ package wechat
 
 import (
 	"encoding/xml"
-	"sync"
 	"time"
-)
-
-var (
-	cache sync.Map
 )
 
 type Msg struct {
@@ -16,7 +11,9 @@ type Msg struct {
 	FromUserName string   `xml:"FromUserName"`
 	CreateTime   int64    `xml:"CreateTime"`
 	MsgType      string   `xml:"MsgType"`
+	Event        string   `xml:"Event"`
 	Content      string   `xml:"Content"`
+	Recognition  string   `xml:"Recognition"`
 
 	MsgId int64 `xml:"MsgId,omitempty"`
 }
@@ -29,21 +26,12 @@ func NewMsg(data []byte) *Msg {
 	return &msg
 }
 
-func (msg *Msg) IsText() bool {
-	return msg.MsgType == "text"
-}
-
-func (msg *Msg) HasReply() bool {
-	_, ok := cache.Load(msg.FromUserName)
-	return ok
-}
-
 func (msg *Msg) GenerateEchoData(s string) []byte {
 	data := Msg{
 		ToUserName:   msg.FromUserName,
 		FromUserName: msg.ToUserName,
 		CreateTime:   time.Now().Unix(),
-		MsgType:      msg.MsgType,
+		MsgType:      "text",
 		Content:      s,
 	}
 	bs, _ := xml.Marshal(&data)
