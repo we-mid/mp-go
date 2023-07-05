@@ -37,3 +37,6 @@ wechat:
   timeout: 7
   # 用户关注时主动发送的消息
   subscribeMsg: 你好，有什么能帮助您的吗？
+  # allowList第一项为`*`表示allowAll全员开放 否则开启名单校验
+  allowList:
+    - *

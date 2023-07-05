@@ -39,6 +39,7 @@ var (
 		Token        string
 		Timeout      int
 		SubscribeMsg string
+		AllowList    []string
 	}
 	// User struct {
 	// 	QueryTimesDaily int64

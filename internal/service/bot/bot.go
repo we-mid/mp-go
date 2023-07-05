@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"openai/internal/config"
+	"regexp"
 	"time"
 )
 
@@ -42,5 +43,10 @@ func Query(userId string, prompt string) string {
 	var result Result
 	body, _ := ioutil.ReadAll(resp.Body)
 	json.Unmarshal(body, &result)
-	return result.Text
+	text := result.Text
+
+	// 优化bot返回的markdown 替换如`1\.`=>`1.`
+	m := regexp.MustCompile(`(\d)\\\.`)
+	text = m.ReplaceAllString(text, "$1.")
+	return text
 }

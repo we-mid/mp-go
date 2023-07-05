@@ -52,20 +52,20 @@ func ReceiveMsg(w http.ResponseWriter, r *http.Request) {
 	switch msg.MsgType {
 	// 未写的类型
 	default:
-		log.Printf("未实现的消息类型%s\n", msg.MsgType)
+		log.Printf("[%s] 未实现的消息类型 %s\n", msg.FromUserName, msg.MsgType)
 		echo(w, success)
 	case "event":
 		switch msg.Event {
 		default:
-			log.Printf("未实现的事件%s\n", msg.Event)
+			log.Printf("[%s] 未实现的事件 %s\n", msg.FromUserName, msg.Event)
 			echo(w, success)
 		case "subscribe":
-			log.Println("新增关注:", msg.FromUserName)
+			log.Printf("[%s] 新增关注\n", msg.FromUserName)
 			b := msg.GenerateEchoData(config.Wechat.SubscribeMsg)
 			echo(w, b)
 			return
 		case "unsubscribe":
-			log.Println("取消关注:", msg.FromUserName)
+			log.Printf("[%s] 取消关注\n", msg.FromUserName)
 			echo(w, success)
 			return
 		}
@@ -74,6 +74,18 @@ func ReceiveMsg(w http.ResponseWriter, r *http.Request) {
 		msg.Content = msg.Recognition
 	case "text":
 
+	}
+	log.Printf("[%s] > %s\n", msg.FromUserName, msg.Content)
+
+	// 如开启白名单校验 不在白名单的用户消息 直接跳过不回复
+	list := config.Wechat.AllowList
+	allowAll := len(list) > 0 && list[0] == "*"
+	if !allowAll {
+		if !contains(config.Wechat.AllowList, msg.FromUserName) {
+			log.Printf("[%s] 用户不在allowList中\n", msg.FromUserName)
+			echo(w, success)
+			return
+		}
 	}
 
 	// 敏感词检测
@@ -102,9 +114,11 @@ func ReceiveMsg(w http.ResponseWriter, r *http.Request) {
 		}
 		bs := msg.GenerateEchoData(result)
 		echo(w, bs)
+		log.Printf("[%s] <<< %s\n", msg.FromUserName, result)
 		requests.Delete(msg.MsgId)
 	// 超时不要回答，会重试的
 	case <-time.After(time.Second * 5):
+		// log.Printf("[%s] timeout\n", msg.FromUserName)
 	}
 }
 
@@ -114,11 +128,16 @@ func Test(w http.ResponseWriter, r *http.Request) {
 		echoJson(w, "", warn)
 		return
 	}
+	log.Printf("[Test] > %s\n", msg)
+
 	// s := openai.Query("0", msg, time.Second*5)
-	// s := "[Test] 收到：" + msg
 	// todo: 注意 这里test账号 需要做限制逻辑 避免被恶意滥用
-	s := bot.Query("test", msg)
+	// s := bot.Query("test", msg)
+	// 不走bot 直接避免被恶意滥用
+	s := "收到：" + msg
+
 	echoJson(w, s, "")
+	log.Printf("[Test] <<< %s\n", s)
 }
 
 func echoJson(w http.ResponseWriter, replyMsg string, errMsg string) {
@@ -142,4 +161,17 @@ func echo(w http.ResponseWriter, data []byte) {
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
+}
+
+// How to check if a slice contains an element in Go
+// https://freshman.tech/snippets/go/check-if-slice-contains-element/
+// https://play.golang.org/p/Qg_uv_inCek
+// contains checks if a string is present in a slice
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }
