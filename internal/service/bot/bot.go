@@ -36,7 +36,9 @@ func Query(userId string, prompt string) string {
 		err = errors.New(resp.Status)
 	}
 	if err != nil {
-		return err.Error()
+		// 避免暴露 bot.api url信息
+		m := regexp.MustCompile(`".+?"(:.*tcp)`)
+		return m.ReplaceAllString(err.Error(), "\"******\"$1")
 	}
 	defer resp.Body.Close()
 
@@ -46,7 +48,7 @@ func Query(userId string, prompt string) string {
 	text := result.Text
 
 	// 优化bot返回的markdown 替换如`1\.`=>`1.`
-	m := regexp.MustCompile(`(\d)\\\.`)
-	text = m.ReplaceAllString(text, "$1.")
+	// m := regexp.MustCompile(`(\d)\\\.`)
+	// text = m.ReplaceAllString(text, "$1.")
 	return text
 }
